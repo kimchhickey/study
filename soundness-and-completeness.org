@@ -1,0 +1,129 @@
+* 거짓 음성(false negative)과 거짓 양성(false positive)
+[[/Users/kimchhickey/Desktop/pregnent.jpeg]]
+유명한 짤방으로 시작해보겠습니다.
+
+** 거짓 음성(false negative, FN) : 실제로는 양성인데 검사 결과가 음성으로 나오는 것
+   예) 환자에게 병이 있는데, 병이 없다고 판단하는 것.
+
+** 거짓 양성(false positive, FP) : 실제로는 음성인데 검사 결과가 양성으로 나오는 것
+   예) 환자에게 병이 없는데, 병이 있다고 판단하는 것
+
+** 프로그램에서 Type Checker가 있고, X는 검출해내야하는 것이라고 생각해봅시다.
+   그렇다면 X는 환자, Type Checker는 질병 검사기라고 생각할 수 있습니다.
+   Type checker가 FN이 있다는 것은 실제로 X가 문제가 있는데, 없다고 판단하는 상황입니다.
+   Type checker가 FP가 있다는 것은 실제로 X가 문제가 없는데, 있다고 판단하는 상황입니다.
+
+* 안전성(soundness)와 완전성(completeness)
+Type System이 프로그램에서 어떤 X를 막아야하는 것이라고 생각해봅시다.
+** Soundness
+   A type system is /sound/ if it never accepts a program that, when run with some input, does X.
+   타입 시스템이 /sound/하다는 것은 어떤 입력과 함께 X가 수행될 수 있는 프로그램을 절대로 용납하지 않는 것입니다.
+   즉, No false-negative 입니다. X가 있는데, X가 없다고 판정하는 일이 잆는 것 입니다.
+** Completeness
+   A type system is /complete/ if it never rejects a program that, no matter what input it is run with, will not do X.
+   타입 시스템이 /complete/하다는 것은 X가 수행되지 않을 프로그램에 대해서는 절대로 거부하지 않는다는 것입니다.
+   이것은 No false-positive 입니다. 즉, X가 수행되지 않는데, X가 있다고 판정하는 일이 없는 것입니다.
+
+보편적으로, Programming Language에서 타입 시스템의 목표는 sound하게 되는 것이고, complete는 아닙니다.
+(역사적으로 예를 들어 보면, generic과 같은 기능은 "fewer false positive"를 목표로 했습니다.)
+
+** 예 1. Incompleteness in ML
+   ML 타입 시스템은 sound하기 때문에, unsound한 예는 보여줄 수 없고, incompleteness를 살펴보겠습니다.
+   아래 ML 코드는 실제로 string으로 나누지 않는데도 불구하고, ML의 타입 체크를 통과하지 못합니다.
+   #+BEGIN_SRC ocaml
+   fun f1 x = 4 div "hi" (* 하지만 프로그램에서 f1을 호출하는 곳이 없다면? *)
+
+   fun f2 x = if true then 0 else 4 div "hi"
+
+   fun f3 x = if x then 0 else 4 div "hi"
+   val x = f3 true
+
+   fun f4 x = if x <= abs x then 0 else 4 div "hi"
+
+   fun f5 x = 4 div x
+   val y = f5 (if true then 1 else "hi")
+   #+END_SRC
+
+** 예 2. Unsoundness in Typescript
+   아래 코드에서 add(a, b)는 typescript의 타입 체크를 통과하지만, 실제로 런타임 에러를 발생시킵니다. any 타입은 /unsound/한 지점을 만듭니다.
+   #+BEGIN_SRC typescript
+   function add(a: number, b: number) {
+     return a + b;
+   }
+
+   const a: any = 'hello';
+   const b: any = { foo: 'bar' };
+
+   // this erros at run-time, but passes type-checking
+   add(a, b);
+   #+END_SRC
+
+** 예 3. Incompleteness in Typescript
+   아래 코드에서 add 함수가 호출되는 시점에, a가 number임은 assert함수로 인해서 런타임에 보장됩니다. 실제로 발생하지 않을 타입 오류이지만, 타입스크립트는 에러를 보고합니다. 
+   #+BEGIN_SRC typescript
+   import assert from 'assert';
+
+   function add(a: number, b: number) {
+     return a + b;
+   }
+
+   function go(a: number | string): number {
+     assert(typeof a === 'number');
+     return add(a, a);
+   }
+   #+END_SRC
+
+* Case Study 1 : Array and Map Indexing
+** Array Indexing
+   아래 코드는 컴파일에는 문제가 없겠지만 runtime error를 발생시킵니다.(~unsound?~) number 배열에 접근했을 때, 그 값은 number 타입이거나, undefined일 수 있기 때문입니다.
+   #+BEGIN_SRC typescript
+   function printNumber(x: number) {
+     // runtime error : TypeError: Cannot read property 'toFixed' of undefined
+     console.log(x.toFixed(2));
+   }
+
+   function printSecondElement(ary: number[]) {
+     // technically, ary[1] should be number|undefined, not number
+     printNumber(ary[1]);
+   }
+
+   printSecondelement([123]);
+   #+END_SRC
+
+   printSecondElement의 함수 선언에서의 타입을 아래와 같이 바꿔보면 어떨까요? 그러면 컴파일 에러가 납니다.   
+   #+BEGIN_SRC typescript
+   function printNumber(x: number) {
+     // runtime error
+     console.log(x.toFixed(2));
+   }
+
+   function printSecondElement(ary: (number | undefined)[]) {
+     printNumber(ary[1]); // compile error : Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+   }
+
+   printSecondelement([123]);
+   #+END_SRC
+
+   위에서는 실제로 없는 배열 값에 접근했다면, 이번에는 out of bound가 나지 않도록 배열의 최대 크가 안에서만 print를 하면 어떻게 될까요? 같은 타입 에러가 납니다.
+   #+BEGIN_SRC typescript
+   function printNumber(x: number) {
+     // runtime error
+     console.log(x.toFixed(2));
+   }
+
+   function printAllElements(ary: (number | undefined)[]) {
+     for (let i = 0; i < ary.length; i++) {
+       printNumber(ary[i]);
+     }
+   }
+
+   printSecondelement([123]);
+   #+END_SRC
+
+   왜 그럴까요? soundness와 completeness는 tradeoff 관계에 있기 때문입니다. 배열(array)이나 맵(map)을 조회했을 때, T | undefined를 리턴한다고 정의하는 것은 좀 더 안전(/more sound/)하지만, 덜 완전(/less complete)합니다.
+   여러분들이 배열로부터 값을 가져올 때, undefined가 가능하지만, Flow/Typescript는 그것을 알 수 없습니다.
+
+   다른 언어에서는 어떨까요? (Ruby - Sorbet. To-be...)
+
+* Case Study 2. Refinement Invalidation
+출처
