@@ -16,7 +16,7 @@
 * 안전성(soundness)와 완전성(completeness)
 Type System이 프로그램에서 어떤 X를 막아야하는 것이라고 생각해봅시다.
 ** Soundness
-   A type system is *sound* if it never accepts a program that, when run with some input, does X.
+   A type system is /sound/ if it never accepts a program that, when run with some input, does X.
    타입 시스템이 /sound/하다는 것은 어떤 입력과 함께 X가 수행될 수 있는 프로그램을 절대로 용납하지 않는 것입니다.
    즉, No false-negative 입니다. X가 있는데, X가 없다고 판정하는 일이 잆는 것입니다.
 ** Completeness
@@ -24,11 +24,11 @@ Type System이 프로그램에서 어떤 X를 막아야하는 것이라고 생�
    타입 시스템이 /complete/하다는 것은 X가 수행되지 않을 프로그램에 대해서는 절대로 거부하지 않는다는 것입니다.
    이것은 No false-positive 입니다. 즉, X가 수행되지 않는데, X가 있다고 판정하는 일이 없는 것입니다.
 
-보편적으로, Programming Language에서 타입 시스템의 목표는 sound하게 되는 것이고, complete는 아닙니다.
+보편적으로, Programming Language에서 타입 시스템의 목표는 /sound/ 하게 되는 것이고, /complete/ 는 아닙니다.
 (역사적으로 예를 들어 보면, generic과 같은 기능은 "fewer false positive"를 목표로 했습니다.)
 
 ** 예 1. Incompleteness in OCaml
-   ML 타입 시스템은 sound하기 때문에, unsound한 예는 보여줄 수 없습니다. 대신 incompleteness를 살펴보겠습니다.
+   ML 타입 시스템은 /sound/ 하기 때문에, /unsound/ 한 예는 보여줄 수 없습니다. 대신 incompleteness를 살펴보겠습니다.
    아래 ML 코드는 실제로 string으로 나누지 않는데도 불구하고, ML의 타입 체크를 통과하지 못합니다.
    #+BEGIN_SRC ocaml
    fun f1 x = 4 div "hi" (* 하지만 프로그램에서 f1을 호출하는 곳이 없다면? *)
@@ -45,7 +45,7 @@ Type System이 프로그램에서 어떤 X를 막아야하는 것이라고 생�
    #+END_SRC
 
 ** 예 2. Unsoundness in Typescript
-   아래 코드에서 add(a, b)는 typescript의 타입 체크를 통과하지만, 실제로 런타임 에러를 발생시킵니다. any 타입은 /unsound/한 지점을 만듭니다.
+   아래 코드에서 add(a, b)는 typescript의 타입 체크를 통과하지만, 실제로 런타임 에러를 발생시킵니다. any 타입은 /unsound/ 한 지점을 만듭니다.
    #+BEGIN_SRC typescript
    function add(a: number, b: number) {
      return a + b;
@@ -73,9 +73,9 @@ Type System이 프로그램에서 어떤 X를 막아야하는 것이라고 생�
    }
    #+END_SRC
 
-* Case Study 1 : Array and Map Indexing
+* Case Study 1 : Array and Map Indexing in Typescript
 ** Array Indexing
-   아래 코드는 컴파일에는 문제가 없겠지만 runtime error를 발생시킵니다.(~unsound?~) number 배열에 접근했을 때, 그 값은 number 타입이거나, undefined일 수 있기 때문입니다.
+   아래 코드는 컴파일에는 문제가 없겠지만 runtime error를 발생시킵니다. number 배열에 접근했을 때, 그 값은 number 타입이거나, undefined일 수 있기 때문입니다.
    #+BEGIN_SRC typescript
    function printNumber(x: number) {
      // runtime error : TypeError: Cannot read property 'toFixed' of undefined
