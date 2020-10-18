@@ -1,12 +1,12 @@
 * 거짓 음성(false negative)과 거짓 양성(false positive)
 [[https://johngrib.github.io/post-img/two-type-error/pregnant.jpeg]]
-유명한 짤방으로 시작해보겠습니다.
+우선 유명한 짤방으로 시작해보겠습니다.
 
-** 거짓 음성(false negative, FN) : 실제로는 양성인데 검사 결과가 음성으로 나오는 것
+*** 거짓 음성(false negative, FN) : 실제로는 양성인데 검사 결과가 음성으로 나오는 것
    예) 환자에게 병이 있는데, 병이 없다고 판단하는 것.
 
-** 거짓 양성(false positive, FP) : 실제로는 음성인데 검사 결과가 양성으로 나오는 것
-   예) 환자에게 병이 없는데, 병이 있다고 판단하는 것
+*** 거짓 양성(false positive, FP) : 실제로는 음성인데 검사 결과가 양성으로 나오는 것
+    예) 환자에게 병이 없는데, 병이 있다고 판단하는 것
 
 ** 프로그램에서 Type Checker가 있고, X는 검출해내야하는 것이라고 생각해봅시다.
    그렇다면 X는 환자, Type Checker는 질병 검사기라고 생각할 수 있습니다.
@@ -129,4 +129,7 @@ Type System이 프로그램에서 어떤 X를 막아야하는 것이라고 생�
 
 
 출처
-https://johngrib.github.io/wiki/two-type-error/
+- https://www.youtube.com/watch?v=uJHD2xyv7xo
+- https://www.coursera.org/learn/programming-languages-part-b
+- https://johngrib.github.io/wiki/two-type-error/
+- 
