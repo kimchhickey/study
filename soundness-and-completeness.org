@@ -1,8 +1,8 @@
 * Sound한 타입 시스템으로 개발하기 : sound한 타입 시스템과 ReasonML
 
 ReasonML의 여러 특장점들이 많지만, 실제로 개발하면서 제가 가장 와닿았던 지점에 대해서 공유하고자 합니다.
-[[
-https://trungk18.com/static/8bdc45099cea73dcfafa773ee71157c4/ad997/01.png]]
+
+[[https://trungk18.com/static/8bdc45099cea73dcfafa773ee71157c4/ad997/01.png]]
 
 위의 타입 에러는 Javascript를 런타임으로 사용할 때, 자주 마주치게 되는 에러입니다. 하지만 이번 프로젝트에서 ReasonML을 사용하면서 위와 같은 런타입 타입 에러를 거의 보지 못했습니다.
 #+BEGIN_QUOTE
