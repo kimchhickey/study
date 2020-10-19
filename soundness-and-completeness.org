@@ -1,20 +1,25 @@
 * Sound한 타입 시스템으로 개발하기 : sound한 타입 시스템과 ReasonML
+
 ReasonML의 여러 특장점들이 많지만, 실제로 개발하면서 제가 가장 와닿았던 지점에 대해서 공유하고자 합니다.
-[[https://trungk18.com/static/8bdc45099cea73dcfafa773ee71157c4/ad997/01.png]]
+[[
+https://trungk18.com/static/8bdc45099cea73dcfafa773ee71157c4/ad997/01.png]]
+
 위의 타입 에러는 Javascript를 런타임으로 사용할 때, 자주 마주치게 되는 에러입니다. 하지만 이번 프로젝트에서 ReasonML을 사용하면서 위와 같은 런타입 타입 에러를 거의 보지 못했습니다.
 #+BEGIN_QUOTE
 Has no pitfalls, aka the type system is "sound" (the types will always be correct). E.g. If a type isn't marked as nullable, its value will never lie and let through some undefined value silently. ReScript code has no null/undefined errors.
 #+END_QUOTE
-[[https://rescript-lang.org/docs/manual/latest/introduction#difference-vs-typescript]]
+[[
+https://rescript-lang.org/docs/manual/latest/introduction#difference-vs-typescript]]
+
 이러한 타입 에러에 대해서 자유로울 수 있게 해주는 것은 ReasonML의 sound한 타입 시스템 덕분입니다. 이 글에서는 Sound한 타입 시스템이란 무엇인지, 어떻게 ReasonML은 위와 같은 타입 에러로부터 자유로울 수 있는지에 대해서 써보려고 합니다.
 
-목차
-- 안전성(soundness)와 완전성(completeness)
-- 코드에서의 예시
-- ReasonML에서의 개발 경험
+** 목차
+1. 안전성(soundness)와 완전성(completeness)
+2. 코드로 보는 예
+3. ReasonML으로의 개발 경험
 
-* 안전성(soundness)와 완전성(completeness)
-** 거짓 음성(false negative)과 거짓 양성(false positive)
+* 1. 안전성(soundness)와 완전성(completeness)
+** 1-1. 거짓 음성(false negative)과 거짓 양성(false positive)
 컴파일러가 타입 에러를 찾는 것은 환자에게 병을 진단하는 것에 비유할 수 있으며, 그 개념에 따라서 soundness와 completeness를 설명할 수 있습니다.
 이해를 위해서 거짓 음성/거짓 양성의 개념을 다시 한번 정리해보면 다음과 같습니다.
 *** 거짓 음성(false negative, FN) : 실제로는 양성인데 검사 결과가 음성으로 나오는 것
@@ -23,24 +28,29 @@ Has no pitfalls, aka the type system is "sound" (the types will always be correc
 *** 거짓 양성(false positive, FP) : 실제로는 음성인데 검사 결과가 양성으로 나오는 것
     예) 환자에게 병이 없는데, 병이 있다고 판단하는 것
 
-** 타입 검사기(Type Checker)가 있고, X는 검출해내야하는 것이라고 생각해보면
-    X는 환자의 병, Type Checker는 질병 검사기라고 생각할 수 있습니다.
-    "Type checker가 FN이 있다는 것"은 실제로 X라는 문제가 있는데, 없다고 판단하는 상황입니다.
-    "Type checker가 FP가 있다는 것"은 실제로 X라는 문제가 없는데, 있다고 판단하는 상황입니다.
+따라서 타입 검사기(Type Checker)가 있고, X는 검출해내야하는 것이라고 생각해보면 X는 환자의 병, Type Checker는 질병 검사기라고 생각할 수 있습니다.
+"Type checker가 FN이 있다는 것"은 실제로 X라는 문제가 있는데, 없다고 판단하는 상황입니다.
+"Type checker가 FP가 있다는 것"은 실제로 X라는 문제가 없는데, 있다고 판단하는 상황입니다.
 
-** Soundness
-   A type system is /sound/ if it never accepts a program that, when run with some input, does X.
-   타입 시스템이 /sound/하다는 것은 어떤 입력과 함께 X가 수행될 수 있는 프로그램을 절대로 용납하지 않는 것입니다.
-   즉, No false-negative 입니다. X가 있는데, X가 없다고 판정하는 일이 잆는 것입니다.
+** 1-2. 안전성(soundness)와 완전성(completeness)
+*** Soundness
+    #+BEGIN_QUOTE
+    A type system is /sound/ if it never accepts a program that, when run with some input, does X.
+    #+END_QUOTE
+    타입 시스템이 /sound/하다는 것은 어떤 입력과 함께 X가 수행될 수 있는 프로그램을 절대로 용납하지 않는 것입니다.
+    즉, No false-negative 입니다. X가 있는데, X가 없다고 판정하는 일이 잆는 것입니다.
 
-** Completeness
-   A type system is /complete/ if it never rejects a program that, no matter what input it is run with, will not do X.
-   타입 시스템이 /complete/하다는 것은 X가 수행되지 않을 프로그램에 대해서는 절대로 거부하지 않는다는 것입니다.
-   이것은 No false-positive 입니다. 즉, X가 수행되지 않는데, X가 있다고 판정하는 일이 없는 것입니다.
+*** Completeness
+    #+BEGIN_QUOTE
+    A type system is /complete/ if it never rejects a program that, no matter what input it is run with, will not do X.
+    #+END_QUOTE
+    타입 시스템이 /complete/하다는 것은 X가 수행되지 않을 프로그램에 대해서는 절대로 거부하지 않는다는 것입니다.
+    이것은 No false-positive 입니다. 즉, X가 수행되지 않는데, X가 있다고 판정하는 일이 없는 것입니다.
 
 보편적으로, Programming Language에서 타입 시스템의 목표는 /sound/ 하게 되는 것이고, /complete/ 는 아닙니다.
 (역사적으로 예를 들어 보면, generic과 같은 기능은 "fewer false positive"를 목표로 했습니다.)
 
+* 2. 코드로 보는 예
 ** 예 1. Incompleteness in OCaml
    ML 타입 시스템은 /sound/ 하기 때문에, /unsound/ 한 예는 보여줄 수 없습니다. 대신 incompleteness를 살펴보겠습니다.
    아래 ML 코드는 실제로 string으로 나누지 않는데도 불구하고, ML의 타입 체크를 통과하지 못합니다.
